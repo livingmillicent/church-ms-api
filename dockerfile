@@ -44,6 +44,9 @@ RUN composer install \
     --no-progress \
     --no-scripts
 
+#  Generate Laravel application key
+RUN php artisan key:generate --force
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
     find /var/www/html -type d -exec chmod 755 {} \; && \
