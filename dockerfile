@@ -8,14 +8,15 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \
     zip \
     unzip
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions (adjust based on your needs)
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Install PHP extensions - PostgreSQL support
+RUN docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd
 
 # Enable Apache mod_rewrite for clean URLs
 RUN a2enmod rewrite
@@ -30,8 +31,8 @@ COPY . /var/www/html
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Copy custom Apache configuration (if needed)
-# COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
+# Copy custom Apache configuration to use public/ directory
+COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Expose port 80
 EXPOSE 80
