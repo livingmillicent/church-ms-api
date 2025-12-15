@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip
 
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -24,15 +27,21 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
+# Copy composer files first
+COPY composer.json composer.lock* ./
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
 # Copy application files
 COPY . /var/www/html
 
-# Set permissions BEFORE configuring Apache
+# Set permissions AFTER all files are copied
 RUN chown -R www-data:www-data /var/www/html && \
     find /var/www/html -type d -exec chmod 755 {} \; && \
     find /var/www/html -type f -exec chmod 644 {} \;
 
-# Configure Apache to use public/ directory - INLINE config
+# Configure Apache to use public/ directory
 RUN echo '<VirtualHost *:80>\n\
     ServerName php-api-1dp8.onrender.com\n\
     DocumentRoot /var/www/html/public\n\
