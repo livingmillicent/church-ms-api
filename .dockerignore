@@ -2,7 +2,6 @@
 .gitignore
 .env
 vendor/
-.env.example
 vendor/
 node_modules/
 README.md
