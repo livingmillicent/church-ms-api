@@ -24,8 +24,12 @@ RUN docker-php-ext-install \
     bcmath \
     gd
 
-# Enable Apache rewrite module
+# Enable Apache rewrite
 RUN a2enmod rewrite
+
+# IMPORTANT: Pass Render environment variables to Apache/PHP
+RUN echo "PassEnv APP_KEY APP_ENV APP_DEBUG DB_CONNECTION DB_HOST DB_PORT DB_DATABASE DB_USERNAME DB_PASSWORD" \
+    >> /etc/apache2/apache2.conf
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -44,13 +48,12 @@ RUN composer install \
     --no-progress \
     --no-scripts
 
-#  Generate Laravel application key
-RUN php artisan key:generate --force
+# Clear cached Laravel config (prevents empty APP_KEY cache)
+RUN php artisan config:clear || true
 
-# Set permissions
+# Correct Laravel permissions
 RUN chown -R www-data:www-data /var/www/html && \
-    find /var/www/html -type d -exec chmod 755 {} \; && \
-    find /var/www/html -type f -exec chmod 644 {} \;
+    chmod -R 775 storage bootstrap/cache
 
 # Apache virtual host configuration
 RUN printf "<VirtualHost *:80>\n\
