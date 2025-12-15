@@ -27,6 +27,9 @@ RUN docker-php-ext-install \
 # Enable Apache rewrite
 RUN a2enmod rewrite
 
+# REMOVE any previously cached PassEnv directives
+RUN sed -i '/PassEnv/d' /etc/apache2/apache2.conf
+
 # IMPORTANT: Pass Render environment variables to Apache/PHP
 RUN echo "PassEnv APP_KEY APP_ENV APP_DEBUG DB_CONNECTION DB_HOST DB_PORT DB_DATABASE DB_USERNAME DB_PASSWORD" \
     >> /etc/apache2/apache2.conf
