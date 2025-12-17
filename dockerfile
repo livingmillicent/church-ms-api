@@ -58,23 +58,26 @@ RUN echo '<VirtualHost *:80>\n\
     ServerName localhost\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html>\n\
-        AllowOverride All\n\
-        Require all granted\n\
+    AllowOverride All\n\
+    Require all granted\n\
     </Directory>\n\
     <Directory /var/www/html/public>\n\
-        AllowOverride All\n\
-        Require all granted\n\
+    AllowOverride All\n\
+    Require all granted\n\
     </Directory>\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+    </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Create startup script (migrations + Apache)
 RUN echo '#!/bin/bash\n\
-set -e\n\
-echo "Running database migrations..."\n\
-php artisan migrate --force\n\
-echo "Starting Apache..."\n\
-apache2-foreground' > /start.sh \
+    set -e\n\
+    echo "Running database migrations..."\n\
+    php artisan migrate --force\n\
+    echo "Seeding roles and permissions..."\n\
+    php artisan db:seed --class=RolePermissionSeeder --force\n\
+    echo "Starting Apache..."\n\
+    apache2-foreground' > /start.sh \
     && chmod +x /start.sh
+
 
 # Expose HTTP port
 EXPOSE 80
