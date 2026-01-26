@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OfferingController;
+use App\Http\Controllers\TitheController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\ContributionController;
 use App\Http\Controllers\EventController;
@@ -9,6 +11,8 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChildMinistryController;
+use App\Http\Controllers\TeenClassController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -59,6 +63,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('announcements', AnnouncementController::class);
     Route::post('/announcements/{id}/publish', [AnnouncementController::class, 'publish']);
     Route::post('/announcements/{id}/unpublish', [AnnouncementController::class, 'unpublish']);
+
+    // Tithe and Offering
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('tithes', TitheController::class);
+        Route::apiResource('offerings', OfferingController::class);
+    });
+
+    // Children and teen
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('children-ministries', ChildMinistryController::class);
+        Route::apiResource('teen-classes', TeenClassController::class);
+    });
+
 
     // Users & Roles
     Route::apiResource('users', UserController::class);
